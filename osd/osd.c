@@ -10,11 +10,19 @@
 #include "../misc.h"
 #include "../ide.h"
 
+#include "../crt.h"
+
 struct OSD {
 	mu_Context ctx;
 	EMULINK *emulink;
 	IDEIFState *ide, *ide2;
 };
+
+#if !defined(OSD_NUM_MAX_INSTANCES)
+#define OSD_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(osd, struct OSD, OSD_NUM_MAX_INSTANCES)
 
 static void do_window(mu_Context *ctx, struct OSD *osd)
 {
@@ -267,7 +275,7 @@ static void render(mu_Context *ctx,
 
 OSD *osd_init()
 {
-	OSD *osd = malloc(sizeof(OSD));
+	OSD *osd = osd_objpool_alloc();
 	osd->emulink = NULL;
 	osd->ide = osd->ide2 = NULL;
 	mu_init(&(osd->ctx));

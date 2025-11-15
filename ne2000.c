@@ -31,6 +31,7 @@
 //#include "hw.h"
 //#include "pc.h"
 //#include "net.h"
+#include "crt.h"
 
 #ifndef BUILD_ESP32
 #if defined(_WIN32)
@@ -178,6 +179,13 @@ struct NE2000State {
     uint8_t macaddr[6];
     uint8_t mem[NE2000_MEM_SIZE];
 };
+
+#if !defined(NE2000_NUM_MAX_INSTANCES)
+#define NE2000_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(ne2000,       struct NE2000State, NE2000_NUM_MAX_INSTANCES)
+
 
 static void ne2000_reset(NE2000State *s)
 {
@@ -358,6 +366,12 @@ struct TUN {
     int fd;
 };
 
+#if !defined(NE2000_TUN_NUM_MAX_INSTANCES)
+#define NE2000_TUN_NUM_MAX_INSTANCES NE2000_NUM_MAX_INSTANCES
+#endif
+
+CRT_DEFINE_OBJPOOL(ne2000_tun,   struct TUN,         NE2000_TUN_NUM_MAX_INSTANCES)
+
 static void qemu_send_packet(void *vc, uint8_t *buf, int size)
 {
     struct TUN *tun = vc;
@@ -383,7 +397,7 @@ void ne2000_step(NE2000State *s)
 
 static void *net_open(NE2000State *s)
 {
-    struct TUN *tun = malloc(sizeof(struct TUN));
+    struct TUN *tun = ne2000_tun_objpool_alloc(sizeof(struct TUN));
     tun->fd = -1;
     if (getenv("TAPFD"))
         tun->fd = atoi(getenv("TAPFD"));
@@ -399,6 +413,13 @@ struct SLIRP {
     void *ne2000;
     uint32_t nextts;
 };
+
+#if !defined(NE2000_SLIRP_NUM_MAX_INSTANCES)
+#define NE2000_SLIRP_NUM_MAX_INSTANCES NE2000_NUM_MAX_INSTANCES
+#endif
+
+CRT_DEFINE_OBJPOOL(ne2000_slirp, struct SLIRP,       NE2000_SLIRP_NUM_MAX_INSTANCES)
+
 
 static void qemu_send_packet(void *vc, uint8_t *buf, int size)
 {
@@ -464,7 +485,7 @@ static void *net_open(NE2000State *s)
     const char *vhostname = NULL;
     int restricted = 0;
 
-    struct SLIRP *slirp = malloc(sizeof(struct SLIRP));
+    struct SLIRP *slirp = ne2000_slirp_objpool_alloc();
     slirp->slirp = slirp_init(restricted, net_addr, mask, host, vhostname,
                               "", bootfile, dhcp, dns, slirp);
     slirp->ne2000 = s;
@@ -900,8 +921,12 @@ NE2000State *isa_ne2000_init(int base, int irq,
 {
     NE2000State *s;
 
-    s = bigmalloc(sizeof(NE2000State));
-    memset(s, 0, sizeof(NE2000State));
+    // TODO: Do we need an OBJPOOL variant with bigmalloc? (in-non-static mode)
+    //
+    // s = bigmalloc(sizeof(NE2000State));
+    // memset(s, 0, sizeof(NE2000State));
+
+    s = ne2000_objpool_alloc();
     atomic_init(&(s->isr), 0);
     s->vc = net_open(s);
 

@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include "i8254.h"
+#include "crt.h"
 //#define DEBUG_PIT
 
 #define RW_STATE_LSB 1
@@ -58,6 +59,13 @@ struct PITState {
 	void *pic;
 	void (*set_irq)(void *pic, int irq, int level);
 };
+
+#if !defined(I8254_NUM_MAX_INSTANCES)
+#define I8254_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(i8254, struct PITState, I8254_NUM_MAX_INSTANCES)
+
 
 #ifdef BUILD_ESP32
 #include "esp_private/system_internal.h"
@@ -310,8 +318,7 @@ void i8254_update_irq(PITState *pit)
 
 PITState *i8254_init(int irq, void *pic, void (*set_irq)(void *pic, int irq, int level))
 {
-	PITState *pit = malloc(sizeof(PITState));
-	memset(pit, 0, sizeof(PITState));
+	PITState *pit = i8254_objpool_alloc();
 	pit->pic = pic;
 	pit->set_irq = set_irq;
 

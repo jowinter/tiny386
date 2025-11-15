@@ -23,6 +23,8 @@
  */
 
 #include "pcspk.h"
+#include "crt.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -50,6 +52,13 @@ struct PCSpkState {
     int dummy_refresh_clock;
     int active_out;
 };
+
+#if !defined(PCSPK_NUM_MAX_INSTANCES)
+#define PCSPK_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(pcspk, struct PCSpkState, PCSPK_NUM_MAX_INSTANCES)
+
 
 static inline void generate_samples(PCSpkState *s)
 {
@@ -148,8 +157,7 @@ int pcspk_get_active_out(PCSpkState *s)
 
 PCSpkState *pcspk_init(PITState *pit)
 {
-    PCSpkState *s = pcmalloc(sizeof(PCSpkState));
-    memset(s, 0, sizeof(PCSpkState));
+    PCSpkState *s = pcspk_objpool_alloc();
 
     s->pit = pit;
 //    register_ioport_read(0x61, 1, 1, pcspk_ioport_read, s);

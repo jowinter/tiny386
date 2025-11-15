@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "crt.h"
+
 typedef struct {
 	uint32_t mant0;
 	uint32_t mant1;
@@ -134,6 +136,12 @@ struct FPU {
 	u8 rawtagw;
 };
 
+#if !defined(FPU_NUM_MAX_INSTANCES)
+#define FPU_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(fpu, struct FPU, FPU_NUM_MAX_INSTANCES)
+
 static u16 getsw(FPU *fpu)
 {
         return (fpu->sw & 0xc7ff) | (fpu->top << 11);
@@ -147,8 +155,7 @@ static void setsw(FPU *fpu, u16 sw)
 
 FPU *fpu_new()
 {
-	FPU *fpu = malloc(sizeof(FPU));
-	memset(fpu, 0, sizeof(FPU));
+	FPU *fpu = fpu_objpool_alloc();
 	fpu->cw = 0x40;
 	return fpu;
 }

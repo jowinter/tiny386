@@ -1,4 +1,6 @@
 #include "misc.h"
+#include "crt.h"
+
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
@@ -96,10 +98,15 @@ struct U8250 {
 	void (*set_irq)(void *pic, int irq, int level);
 };
 
+#if !defined(U8250_NUM_MAX_INSTANCES)
+#define U8250_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(u8250, struct U8250, U8250_NUM_MAX_INSTANCES)
+
 U8250 *u8250_init(int irq, void *pic, void (*set_irq)(void *pic, int irq, int level))
 {
-	U8250 *s = malloc(sizeof(U8250));
-	memset(s, 0, sizeof(U8250));
+	U8250 *s = u8250_objpool_alloc();
 	s->out_fd = 1;
 
 	s->irq = irq;
@@ -117,6 +124,12 @@ struct CMOS {
 	void *pic;
 	void (*set_irq)(void *pic, int irq, int level);
 };
+
+#if !defined(CMOS_NUM_MAX_INSTANCES)
+#define CMOS_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(cmos, struct CMOS, CMOS_NUM_MAX_INSTANCES)
 
 static int bin2bcd(int a)
 {
@@ -146,8 +159,7 @@ static void cmos_update_time(CMOS *s)
 
 CMOS *cmos_init(long mem_size, int irq, void *pic, void (*set_irq)(void *pic, int irq, int level))
 {
-	CMOS *c = malloc(sizeof(CMOS));
-	memset(c, 0, sizeof(CMOS));
+	CMOS *c = cmos_objpool_alloc();
 	c->irq = irq;
 	c->pic = pic;
 	c->set_irq = set_irq;
@@ -430,10 +442,15 @@ struct EMULINK {
 	int fdfmti[2];
 };
 
+#if !defined(EMULINK_NUM_MAX_INSTANCES)
+#define EMULINK_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(emulink, struct EMULINK, EMULINK_NUM_MAX_INSTANCES)
+
 EMULINK *emulink_init()
 {
-	EMULINK *e = malloc(sizeof(EMULINK));
-	memset(e, 0, sizeof(EMULINK));
+	EMULINK *e = emulink_objpool_alloc();
 	e->cmd = -1;
 	return e;
 }

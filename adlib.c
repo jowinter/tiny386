@@ -27,6 +27,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "adlib.h"
+#include "crt.h"
+
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -61,6 +63,14 @@ struct AdlibState {
     void *voice;
     FM_OPL *opl;
 };
+
+
+#if !defined(ADLIB_NUM_MAX_INSTANCES)
+#define ADLIB_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(adlib, struct AdlibState, ADLIB_NUM_MAX_INSTANCES)
+
 
 static void adlib_stop_opl_timer (AdlibState *s, size_t n)
 {
@@ -139,8 +149,7 @@ void adlib_callback (void *opaque, uint8_t *stream, int free)
 
 AdlibState *adlib_new()
 {
-    AdlibState *s = malloc(sizeof(AdlibState));
-    memset(s, 0, sizeof(AdlibState));
+    AdlibState *s = adlib_objpool_alloc();
     s->freq = 44100;
     s->opl = OPLCreate (3579545, s->freq);
     if (!s->opl) {

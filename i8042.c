@@ -51,6 +51,7 @@ static int after_eq(uint32_t a, uint32_t b)
 }
 
 #include "i8042.h"
+#include "crt.h"
 
 #ifdef BUILD_ESP32
 #include "freertos/FreeRTOS.h"
@@ -125,6 +126,12 @@ struct KBDState {
     void (*system_reset_request)(void *sys);
 };
 
+#if !defined(I8042_NUM_MAX_INSTANCES)
+#define I8042_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(i8042, struct KBDState, I8042_NUM_MAX_INSTANCES)
+
 static void ioport_set_a20(int val)
 {
 }
@@ -175,7 +182,6 @@ static void kbd_update_kbd_irq(void *opaque, int level)
 static void kbd_update_aux_irq(void *opaque, int level)
 {
     KBDState *s = (KBDState *)opaque;
-
     if (level)
         s->pending |= KBD_PENDING_AUX;
     else
@@ -345,8 +351,7 @@ KBDState *i8042_init(PS2KbdState **pkbd,
 {
     KBDState *s;
     
-    s = malloc(sizeof(*s));
-    memset(s, 0, sizeof(*s));
+    s = i8042_objpool_alloc();
     
     s->irq_kbd = kbd_irq;
     s->irq_mouse = mouse_irq;
@@ -483,6 +488,17 @@ struct PS2MouseState {
     int mouse_dz;
     uint8_t mouse_buttons;
 };
+
+#if !defined(PS2_KBD_NUM_MAX_INSTANCES)
+#define PS2_KBD_NUM_MAX_INSTANCES (1u)
+#endif
+
+#if !defined(PS2_MOUSE_NUM_MAX_INSTANCES)
+#define PS2_MOUSE_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(ps2_kbd,   PS2KbdState,   PS2_KBD_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(ps2_mouse, PS2MouseState, PS2_MOUSE_NUM_MAX_INSTANCES)
 
 void ps2_queue(void *opaque, int b)
 {
@@ -897,8 +913,7 @@ static void ps2_reset(void *opaque)
 
 PS2KbdState *ps2_kbd_init(void (*update_irq)(void *, int), void *update_arg)
 {
-    PS2KbdState *s = (PS2KbdState *)malloc(sizeof(PS2KbdState));
-    memset(s, 0, sizeof(PS2KbdState));
+    PS2KbdState *s = ps2_kbd_objpool_alloc();
 
     s->common.update_irq = update_irq;
     s->common.update_arg = update_arg;
@@ -908,8 +923,7 @@ PS2KbdState *ps2_kbd_init(void (*update_irq)(void *, int), void *update_arg)
 
 PS2MouseState *ps2_mouse_init(void (*update_irq)(void *, int), void *update_arg)
 {
-    PS2MouseState *s = (PS2MouseState *)malloc(sizeof(PS2MouseState));
-    memset(s, 0, sizeof(PS2MouseState));
+    PS2MouseState *s = ps2_mouse_objpool_alloc();
 
     s->common.update_irq = update_irq;
     s->common.update_arg = update_arg;

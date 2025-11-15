@@ -46,6 +46,14 @@
 #define ldebug(...)
 #endif
 
+#include "crt.h"
+
+#if !defined(I8257_NUM_MAX_INSTANCES)
+#define I8257_NUM_MAX_INSTANCES (2u)
+#endif
+
+CRT_DEFINE_OBJPOOL(i8257, I8257State, I8257_NUM_MAX_INSTANCES)
+
 #define ADDR 0
 #define COUNT 1
 
@@ -648,8 +656,7 @@ I8257State *i8257_new(
     long phys_mem_size,
     int base, int page_base, int pageh_base, int dshift)
 {
-    I8257State *d = malloc(sizeof(I8257State));
-    memset(d, 0, sizeof(I8257State));
+    I8257State *d = i8257_objpool_alloc();
     d->base = base;
     d->page_base = page_base;
     d->pageh_base = pageh_base;

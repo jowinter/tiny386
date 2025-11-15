@@ -23,6 +23,8 @@
  */
 
 #include "sb16.h"
+#include "crt.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -128,6 +130,12 @@ struct SB16State {
     uint8_t e2_valadd;
     uint8_t e2_valxor;
 };
+
+#if !defined(SB16_NUM_MAX_INSTANCES)
+#define SB16_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(sb16, struct SB16State, SB16_NUM_MAX_INSTANCES)
 
 static void AUD_set_active_out (SB16State *s, int i)
 {
@@ -1560,6 +1568,7 @@ SB16State *sb16_new(
     void *pic,
     void (*set_irq)(void *pic, int irq, int level))
 {
+    // TODO: pcmalloc pool?
     SB16State *s = pcmalloc(sizeof(SB16State));
     memset(s, 0, sizeof(SB16State));
     s->voice = s;

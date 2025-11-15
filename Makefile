@@ -7,6 +7,7 @@ LIBS = `${SDL_CONFIG} --libs` -lm ${LIBS_PLAT}
 SRCS = ini.c i386.c fpu.c i8259.c i8254.c ide.c vga.c i8042.c misc.c fmopl.c adlib.c ne2000.c i8257.c sb16.c pcspk.c
 SRCS += pci.c
 SRCS += win32.c
+SRCS += crt.c
 
 # slirp
 SRCS$ += \

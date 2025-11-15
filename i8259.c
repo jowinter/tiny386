@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "i8259.h"
+#include "crt.h"
 
 typedef struct PicState {
 	uint8_t last_irr; /* edge detection */
@@ -51,6 +52,12 @@ struct PicState2 {
 	void (*raise_fn)(void *, PicState2 *);
 	void *obj;
 };
+
+#if !defined(I8259_NUM_MAX_INSTANCES)
+#define I8259_NUM_MAX_INSTANCES (2u)
+#endif
+
+CRT_DEFINE_OBJPOOL(i8259, struct PicState2, I8259_NUM_MAX_INSTANCES)
 
 /* set irq level. If an edge is detected, then the IRR is set to 1 */
 static inline void pic_set_irq1(PicState *s, int irq, int level)
@@ -352,7 +359,7 @@ void i8259_ioport_write(PicState2 *s, uint32_t addr, uint32_t val)
 
 PicState2 *i8259_init(void (*raise_fn)(void *, PicState2 *s), void *obj)
 {
-	PicState2 *s = malloc(sizeof(PicState2));
+	PicState2 *s = i8259_objpool_alloc();
 	pic_reset(&s->pics[0]);
 	pic_reset(&s->pics[1]);
 	s->pics[0].pics_state = s;

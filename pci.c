@@ -30,6 +30,8 @@
 
 //#include "cutils.h"
 #include "pci.h"
+#include "crt.h"
+
 #ifdef BUILD_ESP32
 void *pcmalloc(long size);
 #else
@@ -91,6 +93,12 @@ struct PCIDevice {
     PCIIORegion io_regions[PCI_NUM_REGIONS];
 };
 
+#if !defined(PCIDEV_MAX_INSTANCES)
+#define PCIDEV_MAX_INSTANCES (8u)
+#endif
+
+CRT_DEFINE_OBJPOOL(pcidev, struct PCIDevice, PCIDEV_MAX_INSTANCES)
+
 struct PCIBus {
     int bus_num;
     PCIDevice *device[256];
@@ -99,6 +107,13 @@ struct PCIBus {
     uint32_t irq_state[4][8]; /* one bit per device */
 //    IRQSignal irq[4];
 };
+
+
+#if !defined(PCIBUS_NUM_MAX_INSTANCES)
+#define PCIBUS_NUM_MAX_INSTANCES (2u)
+#endif
+
+CRT_DEFINE_OBJPOOL(pcibus, struct PCIBus, PCIBUS_NUM_MAX_INSTANCES)
 
 static int bus_map_irq(PCIDevice *d, int irq_num)
 {
@@ -156,8 +171,8 @@ PCIDevice *pci_register_device(PCIBus *b, const char *name, int devfn,
     if (b->device[devfn])
         return NULL;
 
-    d = pcmalloc(sizeof(PCIDevice));
-    memset(d, 0, sizeof(PCIDevice));
+    // TODO: pcmalloc pool?
+    d = pcidev_objpool_alloc();
     d->bus = b;
     d->name = strdup(name);
     d->devfn = devfn;
@@ -492,6 +507,13 @@ struct I440FXState {
 //    IRQSignal *pic_irqs; /* 16 irqs */
 };
 
+#if !defined(I440FX_NUM_MAX_INSTANCES)
+#define I440FX_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(i440fx, struct I440FXState, I440FX_NUM_MAX_INSTANCES)
+
+
 void i440fx_write_addr(void *opaque, uint32_t offset,
                        uint32_t data, int size_log2)
 {
@@ -561,12 +583,11 @@ I440FXState *i440fx_init(PCIBus **pbus, int *ppiix3_devfn)
     PCIBus *b;
     PCIDevice *d;
     int i;
-    
-    s = pcmalloc(sizeof(*s));
-    
-    b = pcmalloc(sizeof(PCIBus));
-    memset(s, 0, sizeof(*s));
-    memset(b, 0, sizeof(PCIBus));
+
+    // TODO: pcmalloc pool?
+    s = i440fx_objpool_alloc();;
+    b = pcibus_objpool_alloc();
+
     b->bus_num = 0;
 //    b->mem_map = mem_map;
 //    b->port_map = port_map;

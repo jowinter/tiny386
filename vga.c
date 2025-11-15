@@ -1,6 +1,6 @@
 /*
  * Dummy VGA device
- * 
+ *
  * Copyright (c) 2003-2017 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,6 +31,7 @@
 
 #include "vga.h"
 #include "pci.h"
+#include "crt.h"
 
 #ifdef BUILD_ESP32
 #include "esp_attr.h"
@@ -93,6 +94,12 @@ struct FBDevice {
     uint8_t *fb_data; /* current pointer to the pixel data */
 };
 
+#if !defined(FBDEV_NUM_MAX_INSTANCES)
+#define FBDEV_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(fbdev, struct FBDevice, FBDEV_NUM_MAX_INSTANCES)
+
 struct VGAState {
     FBDevice *fb_dev;
     int graphic_mode;
@@ -103,7 +110,7 @@ struct VGAState {
 
     uint8_t *vga_ram;
     int vga_ram_size;
-    
+
     uint8_t sr_index;
     uint8_t sr[8];
     uint8_t gr_index;
@@ -127,7 +134,7 @@ struct VGAState {
     int32_t bank_offset;
 
     uint32_t latch;
-    
+
     /* text mode state */
     uint32_t last_palette[16];
 #ifndef FULL_UPDATE
@@ -151,6 +158,13 @@ struct VGAState {
     uint8_t tmpbuf[720 * 3 * 2];
 #endif
 };
+
+#if !defined(VGA_NUM_MAX_INSTANCES)
+#define VGA_NUM_MAX_INSTANCES (1u)
+#endif
+
+CRT_DEFINE_OBJPOOL(vga, struct VGAState, VGA_NUM_MAX_INSTANCES)
+
 
 #ifdef BUILD_ESP32
 #include "esp_private/system_internal.h"
@@ -680,12 +694,12 @@ static void vga_text_refresh(VGAState *s,
     uint32_t v = s->sr[0x3];
     font_base[0] = vga_ram + (((v >> 4) & 1) | ((v << 1) & 6)) * 8192 * 4 + 2;
     font_base[1] = vga_ram + (((v >> 5) & 1) | ((v >> 1) & 6)) * 8192 * 4 + 2;
-    
+
     line_offset = s->cr[0x13];
     line_offset <<= 3;
 
     start_addr = s->cr[0x0d] | (s->cr[0x0c] << 8);
-    
+
     cheight = (s->cr[9] & 0x1f) + 1;
     cwidth = 8;
     if (!(s->sr[1] & 0x01))
@@ -696,7 +710,7 @@ static void vga_text_refresh(VGAState *s,
         ((s->cr[0x07] & 0x02) << 7) |
         ((s->cr[0x07] & 0x40) << 3);
     height = (height + 1) / cheight;
-    
+
     width1 = width * cwidth;
     height1 = height * cheight;
 #ifdef SCALE_3_2
@@ -724,7 +738,7 @@ static void vga_text_refresh(VGAState *s,
         s->last_height = height;
         full_update = 1;
     }
-       
+
     /* update cursor position */
     cursor_offset = ((s->cr[0x0e] << 8) | s->cr[0x0f]) - start_addr;
     cursor_start = s->cr[0xa];
@@ -746,7 +760,7 @@ static void vga_text_refresh(VGAState *s,
 
     ch_addr1 = (start_addr * 4);
     cursor_offset = (start_addr + cursor_offset) * 4;
-    
+
 #if 0
     printf("text refresh %dx%d font=%dx%d start_addr=0x%x line_offset=0x%x\n",
            width, height, cwidth, cheight, start_addr, line_offset);
@@ -1940,13 +1954,13 @@ static void vga_initmode(VGAState *s);
 VGAState *vga_init(char *vga_ram, int vga_ram_size,
                    uint8_t *fb, int width, int height)
 {
-    VGAState *s;
+    // TODO: pcmalloc pool?
+    VGAState *s = vga_objpool_alloc();
 
-    s = pcmalloc(sizeof(*s));
-    memset(s, 0, sizeof(*s));
-    FBDevice *fb_dev = pcmalloc(sizeof(FBDevice));
+    // TODO: pcmalloc pool?
+    FBDevice *fb_dev = fbdev_objpool_alloc();
     s->fb_dev = fb_dev;
-    memset(s->fb_dev, 0, sizeof(FBDevice));
+
     s->graphic_mode = 0;
     s->cursor_blink_time = get_uticks();
     s->cursor_visible_phase = 1;
