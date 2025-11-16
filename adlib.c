@@ -137,18 +137,6 @@ void adlib_callback (void *opaque, uint8_t *stream, int free)
     YM3812UpdateOne (s->opl, (void *) stream, samples);
 }
 
-void adlib_free(AdlibState *s)
-{
-    if (s->opl) {
-        OPLDestroy (s->opl);
-        s->opl = NULL;
-    }
-
-    s->active = 0;
-    s->enabled = 0;
-    free(s);
-}
-
 AdlibState *adlib_new()
 {
     AdlibState *s = malloc(sizeof(AdlibState));
