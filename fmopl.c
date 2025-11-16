@@ -37,21 +37,11 @@
 #include <math.h>
 //#include "driver.h"		/* use M.A.M.E. */
 #include "fmopl.h"
+#include "crt.h"
 #ifndef PI
 #define PI 3.14159265358979323846
 #endif
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-#define g_new(t, n) psmalloc(sizeof(t) * (n))
-#define g_free(p) /*free(p)*/
-
-// TODO: free...
-#ifdef BUILD_ESP32
-void *pcmalloc(long size);
-void *psmalloc(long size);
-#else
-#define pcmalloc malloc
-#define psmalloc malloc
-#endif
 
 /* -------------------- for debug --------------------- */
 /* #define OPL_OUTPUT_LOG */

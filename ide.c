@@ -29,6 +29,7 @@
 
 //#include "cutils.h"
 #include "ide.h"
+#include "crt.h"
 
 //#define DEBUG_IDE
 //#define DEBUG_IDE_ATAPI
@@ -306,12 +307,6 @@
 #define MAX_MULT_SECTORS 2
 #else
 #define MAX_MULT_SECTORS 4 /* 512 * 4 == 2048 */
-#endif
-
-#ifdef BUILD_ESP32
-void *pcmalloc(long size);
-#else
-#define pcmalloc malloc
 #endif
 
 typedef void BlockDeviceCompletionFunc(void *opaque, int ret);

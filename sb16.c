@@ -31,12 +31,6 @@
 #include <string.h>
 #include "i8257.h"
 
-#ifdef BUILD_ESP32
-void *pcmalloc(long size);
-#else
-#define pcmalloc malloc
-#endif
-
 #ifdef SB16_LOG
 #define dolog(...) fprintf(stderr, "sb16: " __VA_ARGS__)
 #define qemu_log_mask(_, ...) fprintf(stderr, "sb16: " __VA_ARGS__)

@@ -39,12 +39,6 @@
 #define IRAM_ATTR
 #endif
 
-#ifdef BUILD_ESP32
-void *pcmalloc(long size);
-#else
-#define pcmalloc malloc
-#endif
-
 //#define DEBUG_VBE
 //#define DEBUG_VGA_REG
 

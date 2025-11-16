@@ -32,12 +32,6 @@
 #include "pci.h"
 #include "crt.h"
 
-#ifdef BUILD_ESP32
-void *pcmalloc(long size);
-#else
-#define pcmalloc malloc
-#endif
-
 static inline uint16_t get_le16(const uint8_t *ptr)
 {
     return ptr[0] | (ptr[1] << 8);
