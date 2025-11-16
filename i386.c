@@ -26,6 +26,11 @@
 typedef void FPU;
 #endif
 
+#ifndef I386_MALLOC_TLB
+// Assume a statically allocated TLB by default
+#define CPUI386_STATIC_TLB_SIZE (512u)
+#endif
+
 struct CPUI386 {
 	union {
 		uword gpr[8];
@@ -82,7 +87,13 @@ struct CPUI386 {
 			uword xaddr;
 			int (*pte_lookup)[2];
 			u8 *ppte;
+#if defined(CPUI386_STATIC_TLB_SIZE) && (CPUI386_STATIC_TLB_SIZE != 0)
+		// Statically allocated TLB (as part of CPU object)
+		} tab[CPUI386_STATIC_TLB_SIZE];
+#else
+		// malloc'd TLB
 		} *tab;
+#endif
 	} tlb;
 
 	u8 *phys_mem;
@@ -472,7 +483,13 @@ static inline int get_IOPL(CPUI386 *cpu)
 /* MMU */
 #define CR0_PG (1<<31)
 #define CR0_WP (0x10000)
+
+#if defined(CPUI386_STATIC_TLB_SIZE) && (CPUI386_STATIC_TLB_SIZE != 0)
+#define tlb_size CPUI386_STATIC_TLB_SIZE
+#else
 #define tlb_size 512
+#endif
+
 typedef struct {
 	enum {
 		ADDR_OK1,
@@ -5125,8 +5142,13 @@ CPUI386 *cpui386_new(int gen, char *phys_mem, long phys_mem_size, CPU_CB **cb)
 	default: assert(false);
 	}
 
-	cpu->tlb.size = tlb_size;
+#if defined(CPUI386_STATIC_TLB_SIZE) && (CPUI386_STATIC_TLB_SIZE != 0)
+	// Statically allocated TLB (as part of CPUI386)
+#else
+	// Dynamically allocated TLB
+	//cpu->tlb.size = tlb_size;
 	cpu->tlb.tab = malloc(sizeof(struct tlb_entry) * tlb_size);
+#endif
 
 	cpu->phys_mem = (u8 *) phys_mem;
 	cpu->phys_mem_size = phys_mem_size;
