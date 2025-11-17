@@ -23,7 +23,7 @@
  */
 
 #include "sb16.h"
-#include "crt.h"
+#include "pc.h"
 
 #include <stdio.h>
 #include <stdlib.h>

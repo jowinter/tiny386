@@ -1,4 +1,6 @@
 #include "crt.h"
+#include "pc.h"
+
 #include <stdio.h>
 
 #if defined(USE_CRT_OBJPOOLS) && (USE_CRT_OBJPOOLS != 0)
@@ -55,4 +57,16 @@ void crt_heap_free(crt_heap_t *heap, void *p)
 }
 
 CRT_HEAP_DEFINE(gen_heap, gen_heap_alloc, gen_heap_free, 1024u * 1024u)
+#endif
+
+#ifndef BUILD_ESP32
+void *pcmalloc(long size)
+{
+	return gen_heap_alloc(size);
+}
+
+void *psmalloc(size_t size)
+{
+	return gen_heap_alloc(size);	
+}
 #endif

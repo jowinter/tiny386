@@ -137,17 +137,7 @@ void crt_objpool_release(crt_objpool_alloc_state_t *map, size_t idx);
 
 #endif
 
-// TODO: free...
-#ifdef BUILD_ESP32
-void *pcmalloc(long size);
-void *psmalloc(long size);
-#else
-
-#define pcmalloc gen_heap_alloc
-#define psmalloc gen_heap_alloc
-#endif
-
-#define g_new(t, n) psmalloc(sizeof(t) * (n))
+#define g_new(t, n) bigmalloc(sizeof(t) * (n))
 #define g_free(p) /*free(p)*/
 
 #endif /* CRT_H */

@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "adlib.h"
-#include "crt.h"
+#include "pc.h"
 
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

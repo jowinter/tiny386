@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 #include "i8254.h"
-#include "crt.h"
+#include "pc.h"
 //#define DEBUG_PIT
 
 #define RW_STATE_LSB 1
@@ -65,24 +65,6 @@ struct PITState {
 #endif
 
 CRT_DEFINE_OBJPOOL(i8254, struct PITState, I8254_NUM_MAX_INSTANCES)
-
-
-#ifdef BUILD_ESP32
-#include "esp_private/system_internal.h"
-static uint32_t get_uticks()
-{
-	return esp_system_get_time();
-}
-#else
-#include <time.h>
-static uint32_t get_uticks()
-{
-	struct timespec ts;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return ((uint32_t) ts.tv_sec * 1000000 +
-		(uint32_t) ts.tv_nsec / 1000);
-}
-#endif
 
 static int after_eq(uint32_t a, uint32_t b)
 {

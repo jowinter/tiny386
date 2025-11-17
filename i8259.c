@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "i8259.h"
-#include "crt.h"
+#include "pc.h"
 
 typedef struct PicState {
 	uint8_t last_irr; /* edge detection */

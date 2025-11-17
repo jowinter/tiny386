@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "crt.h"
+#include "pc.h"
 
 typedef struct {
 	uint32_t mant0;

@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// For freestanding environment (experimental)
+#include "crt.h"
+
 #include "i386.h"
 #include "i8259.h"
 #include "i8254.h"

@@ -23,7 +23,7 @@
  */
 
 #include "pcspk.h"
-#include "crt.h"
+#include "pc.h"
 
 #include <stdlib.h>
 #include <string.h>

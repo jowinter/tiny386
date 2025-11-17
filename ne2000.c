@@ -31,7 +31,7 @@
 //#include "hw.h"
 //#include "pc.h"
 //#include "net.h"
-#include "crt.h"
+#include "pc.h"
 
 #ifndef BUILD_ESP32
 #if defined(_WIN32)
@@ -437,15 +437,6 @@ void slirp_output(void *opaque, const uint8_t *pkt, int pkt_len)
 {
     struct SLIRP *s = opaque;
     ne2000_receive(s->ne2000, pkt, pkt_len);
-}
-
-#include <time.h>
-static uint32_t get_uticks()
-{
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ((uint32_t) ts.tv_sec * 1000000 +
-            (uint32_t) ts.tv_nsec / 1000);
 }
 
 void ne2000_step(NE2000State *ne2000)

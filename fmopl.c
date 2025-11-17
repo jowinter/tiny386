@@ -37,7 +37,7 @@
 #include <math.h>
 //#include "driver.h"		/* use M.A.M.E. */
 #include "fmopl.h"
-#include "crt.h"
+#include "pc.h"
 #ifndef PI
 #define PI 3.14159265358979323846
 #endif

@@ -27,9 +27,8 @@
 #include <inttypes.h>
 #include <assert.h>
 
-//#include "cutils.h"
 #include "ide.h"
-#include "crt.h"
+#include "pc.h"
 
 //#define DEBUG_IDE
 //#define DEBUG_IDE_ATAPI

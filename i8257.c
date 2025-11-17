@@ -46,7 +46,7 @@
 #define ldebug(...)
 #endif
 
-#include "crt.h"
+#include "pc.h"
 
 #if !defined(I8257_NUM_MAX_INSTANCES)
 #define I8257_NUM_MAX_INSTANCES (2u)
