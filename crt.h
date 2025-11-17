@@ -9,76 +9,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define USE_CRT_HEAP 1
+#define CRT_HEAP_DECLARE(heap_name)    \
+	void* heap_name##_alloc(size_t n); \
+	void heap_name##_free(void *p);
 
-#if defined(USE_CRT_HEAP) && (USE_CRT_HEAP != 0)
-typedef struct crt_heap {
-	uintptr_t heap_base;
-	uintptr_t heap_size;
-	uintptr_t heap_brk;
-} crt_heap_t;
 
-typedef union crt_heap_cell {
-	uint64_t  i;
-	uintptr_t u;
-	double    d;
-	void*     p;
-} crt_heap_cell_t;
+/* Heap for generic (small) object allocations (pcalloc) */
+CRT_HEAP_DECLARE(gen_heap)
 
-#define CRT_HEAP_ALIGN (sizeof(crt_heap_cell_t))
-
-void* crt_heap_alloc(crt_heap_t *heap, size_t n);
-void crt_heap_free(crt_heap_t *heap, void *p);
-
-#define CRT_HEAP_DECLARE(heap_name,allocfn,freefn) \
-	void* allocfn(size_t n); \
-	void freefn(void *p);
-
-#define CRT_HEAP_DEFINE(heap_name,allocfn,freefn,hsize) \
-	static crt_heap_cell_t heap_name##_cells[(hsize + CRT_HEAP_ALIGN - 1) / CRT_HEAP_ALIGN]; \
-	static crt_heap_t heap_name##_heap = { \
-		.heap_base = (uintptr_t) (&heap_name##_cells), \
-		.heap_size = sizeof(heap_name##_cells), \
-		.heap_brk  = (uintptr_t) (&heap_name##_cells), \
-	}; \
-	void* allocfn(size_t n) \
-	{ \
-		return crt_heap_alloc(&heap_name##_heap, n); \
-	} \
-	void freefn(void *p) \
-	{ \
-		crt_heap_free(&heap_name##_heap, p); \
-	}
-
-#else
-
-static inline void* crt_heap_alloc(crt_heap_t *heap, size_t n)
-{
-	(void) heap;
-	return calloc(1u, sizeof(objtype));
-}
-
-static inline void crt_heap_free(crt_heap_t *heap, void *p)
-{
-	(void) heap;
-	free(p);
-}
-
-#define CRT_HEAP_DECLARE(heap_name,allocfn,freefn) \
-	static inline void* allocfn(size_t n) \
-	{ \
-		return crt_heap_alloc(NULL, n); \
-	} \
-	static inline void freefn(void *p) \
-	{ \
-		crt_heap_free(NULL, p); \
-	}
-	
-#define CRT_HEAP_CREATE(heap_name,allocfn,freefn,heap_size)
-
-#endif
-
-CRT_HEAP_DECLARE(gen_heap, gen_heap_alloc, gen_heap_free)
+/* Heap for big allocations (bigmalloc, psmalloc) */
+CRT_HEAP_DECLARE(big_heap)
 
 #if defined(USE_CRT_OBJPOOLS) && (USE_CRT_OBJPOOLS != 0)
 

@@ -28,8 +28,39 @@ void crt_objpool_release(crt_objpool_alloc_state_t *map, size_t idx)
 }
 #endif
 
+
+#define CRT_HEAP_DEFINE_CUSTOM(heap_name,allocfn,freefn) \
+	void* heap_name##_alloc(size_t n) \
+	{ \
+		void *p = allocfn(n); \
+		if (p) \
+		{ \
+			memset(p, 0, n); \
+		} \
+		return p; \
+	} \
+	void heap_name##_free(void *p) \
+	{ \
+		freefn(p); \
+	}
+
 #if defined(USE_CRT_HEAP) && (USE_CRT_HEAP != 0)
-void* crt_heap_alloc(crt_heap_t *heap, size_t n)
+typedef struct crt_heap {
+	uintptr_t heap_base;
+	uintptr_t heap_size;
+	uintptr_t heap_brk;
+} crt_heap_t;
+
+typedef union crt_heap_cell {
+	uint64_t  i;
+	uintptr_t u;
+	double    d;
+	void*     p;
+} crt_heap_cell_t;
+
+#define CRT_HEAP_ALIGN (sizeof(crt_heap_cell_t))
+
+static void* crt_heap_alloc(crt_heap_t *heap, size_t n)
 {
 	size_t n_alloc = CRT_HEAP_ALIGN * ((n + CRT_HEAP_ALIGN - 1) / CRT_HEAP_ALIGN);
 	size_t n_avail = heap->heap_size - (heap->heap_brk - heap->heap_base);
@@ -51,12 +82,34 @@ void* crt_heap_alloc(crt_heap_t *heap, size_t n)
 	return p;
 }
 
-void crt_heap_free(crt_heap_t *heap, void *p)
+static void crt_heap_free(crt_heap_t *heap, void *p)
 {
 	/* No deallocation implementated */
 }
 
-CRT_HEAP_DEFINE(gen_heap, gen_heap_alloc, gen_heap_free, 1024u * 1024u)
+#define CRT_HEAP_DEFINE(heap_name,hsize) \
+	static crt_heap_cell_t heap_name##_cells[(hsize + CRT_HEAP_ALIGN - 1) / CRT_HEAP_ALIGN]; \
+	static crt_heap_t heap_name##_heap = { \
+		.heap_base = (uintptr_t) (&heap_name##_cells), \
+		.heap_size = sizeof(heap_name##_cells), \
+		.heap_brk  = (uintptr_t) (&heap_name##_cells), \
+	}; \
+	void* heap_name##_alloc(size_t n) \
+	{ \
+		return crt_heap_alloc(&heap_name##_heap, n); \
+	} \
+	void heap_name##_free(void *p) \
+	{ \
+		crt_heap_free(&heap_name##_heap, p); \
+	}
+
+CRT_HEAP_DEFINE(gen_heap,       1024u * 1024u) // 1M generic object heap
+CRT_HEAP_DEFINE(big_heap, 32u * 1024u * 1024u) // 32M "big" heap
+
+#else
+/* Delegate to standard C heap */
+CRT_HEAP_DEFINE_CUSTOM(gen_heap, malloc, free)
+CRT_HEAP_DEFINE_CUSTOM(big_heap, malloc, free)
 #endif
 
 #ifndef BUILD_ESP32
@@ -67,6 +120,6 @@ void *pcmalloc(long size)
 
 void *psmalloc(size_t size)
 {
-	return gen_heap_alloc(size);	
+	return big_heap_alloc(size);
 }
 #endif
