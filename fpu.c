@@ -140,7 +140,7 @@ struct FPU {
 #define FPU_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(fpu, struct FPU, FPU_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(fpu, struct FPU, FPU_NUM_MAX_INSTANCES, gen)
 
 static u16 getsw(FPU *fpu)
 {

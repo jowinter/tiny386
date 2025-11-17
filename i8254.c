@@ -64,7 +64,7 @@ struct PITState {
 #define I8254_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(i8254, struct PITState, I8254_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(i8254, struct PITState, I8254_NUM_MAX_INSTANCES, gen)
 
 static int after_eq(uint32_t a, uint32_t b)
 {

@@ -102,7 +102,7 @@ struct U8250 {
 #define U8250_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(u8250, struct U8250, U8250_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(u8250, struct U8250, U8250_NUM_MAX_INSTANCES, gen)
 
 U8250 *u8250_init(int irq, void *pic, void (*set_irq)(void *pic, int irq, int level))
 {
@@ -129,7 +129,7 @@ struct CMOS {
 #define CMOS_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(cmos, struct CMOS, CMOS_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(cmos, struct CMOS, CMOS_NUM_MAX_INSTANCES, gen)
 
 static int bin2bcd(int a)
 {
@@ -446,7 +446,7 @@ struct EMULINK {
 #define EMULINK_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(emulink, struct EMULINK, EMULINK_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(emulink, struct EMULINK, EMULINK_NUM_MAX_INSTANCES, gen)
 
 EMULINK *emulink_init()
 {

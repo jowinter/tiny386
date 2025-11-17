@@ -3,32 +3,6 @@
 
 #include <stdio.h>
 
-#if defined(USE_CRT_OBJPOOLS) && (USE_CRT_OBJPOOLS != 0)
-size_t crt_objpool_claim(crt_objpool_alloc_state_t *map, size_t nobjs)
-{
-	for (size_t i = 0u; i < nobjs; ++i)
-	{
-		bool was_in_use = false;
-		if (atomic_compare_exchange_strong(&map[i], &was_in_use, true))
-		{
-			/* We claimed the object */
-			assert (!was_in_use);
-			return i;
-		}
-	}
-
-	/* No free objects found */
-	return SIZE_MAX;
-}
-
-void crt_objpool_release(crt_objpool_alloc_state_t *map, size_t idx)
-{
-	bool was_allocated = atomic_exchange(&map[idx], false);
-	assert (was_allocated);
-}
-#endif
-
-
 #define CRT_HEAP_DEFINE_CUSTOM(heap_name,allocfn,freefn) \
 	void* heap_name##_alloc(size_t n) \
 	{ \
@@ -103,6 +77,11 @@ static void crt_heap_free(crt_heap_t *heap, void *p)
 		crt_heap_free(&heap_name##_heap, p); \
 	}
 
+// TODO: Provide means to initialize the heap size at runtime.
+// This could be done by adding an early crt_init call (either in main or in pc_new).
+// For a freestanding environment we may want to resort to an alternative approach
+// (could be from linker map, device tree, or similar mechanism, ...)
+//
 CRT_HEAP_DEFINE(gen_heap,       1024u * 1024u) // 1M generic object heap
 CRT_HEAP_DEFINE(big_heap, 32u * 1024u * 1024u) // 32M "big" heap
 

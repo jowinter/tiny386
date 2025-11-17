@@ -51,7 +51,7 @@ struct PCSpkState {
 #define PCSPK_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(pcspk, struct PCSpkState, PCSPK_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(pcspk, struct PCSpkState, PCSPK_NUM_MAX_INSTANCES, gen)
 
 
 static inline void generate_samples(PCSpkState *s)

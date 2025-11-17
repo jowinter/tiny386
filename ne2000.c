@@ -184,7 +184,7 @@ struct NE2000State {
 #define NE2000_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(ne2000,       struct NE2000State, NE2000_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(ne2000, struct NE2000State, NE2000_NUM_MAX_INSTANCES, gen)
 
 
 static void ne2000_reset(NE2000State *s)
@@ -370,7 +370,7 @@ struct TUN {
 #define NE2000_TUN_NUM_MAX_INSTANCES NE2000_NUM_MAX_INSTANCES
 #endif
 
-CRT_DEFINE_OBJPOOL(ne2000_tun,   struct TUN,         NE2000_TUN_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(ne2000_tun, struct TUN, NE2000_TUN_NUM_MAX_INSTANCES, gen)
 
 static void qemu_send_packet(void *vc, uint8_t *buf, int size)
 {
@@ -418,7 +418,7 @@ struct SLIRP {
 #define NE2000_SLIRP_NUM_MAX_INSTANCES NE2000_NUM_MAX_INSTANCES
 #endif
 
-CRT_DEFINE_OBJPOOL(ne2000_slirp, struct SLIRP,       NE2000_SLIRP_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(ne2000_slirp, struct SLIRP, NE2000_SLIRP_NUM_MAX_INSTANCES, gen)
 
 
 static void qemu_send_packet(void *vc, uint8_t *buf, int size)

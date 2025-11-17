@@ -91,7 +91,7 @@ struct PCIDevice {
 #define PCIDEV_MAX_INSTANCES (8u)
 #endif
 
-CRT_DEFINE_OBJPOOL(pcidev, struct PCIDevice, PCIDEV_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(pcidev, struct PCIDevice, PCIDEV_MAX_INSTANCES, gen)
 
 struct PCIBus {
     int bus_num;
@@ -107,7 +107,7 @@ struct PCIBus {
 #define PCIBUS_NUM_MAX_INSTANCES (2u)
 #endif
 
-CRT_DEFINE_OBJPOOL(pcibus, struct PCIBus, PCIBUS_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(pcibus, struct PCIBus, PCIBUS_NUM_MAX_INSTANCES, gen)
 
 static int bus_map_irq(PCIDevice *d, int irq_num)
 {
@@ -505,7 +505,7 @@ struct I440FXState {
 #define I440FX_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(i440fx, struct I440FXState, I440FX_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(i440fx, struct I440FXState, I440FX_NUM_MAX_INSTANCES, gen)
 
 
 void i440fx_write_addr(void *opaque, uint32_t offset,

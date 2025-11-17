@@ -129,7 +129,7 @@ struct SB16State {
 #define SB16_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(sb16, struct SB16State, SB16_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(sb16, struct SB16State, SB16_NUM_MAX_INSTANCES, gen)
 
 static void AUD_set_active_out (SB16State *s, int i)
 {

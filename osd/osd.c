@@ -22,7 +22,7 @@ struct OSD {
 #define OSD_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(osd, struct OSD, OSD_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(osd, struct OSD, OSD_NUM_MAX_INSTANCES, gen)
 
 static void do_window(mu_Context *ctx, struct OSD *osd)
 {

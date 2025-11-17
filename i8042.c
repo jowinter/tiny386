@@ -114,7 +114,7 @@ struct KBDState {
 #define I8042_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(i8042, struct KBDState, I8042_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(i8042, struct KBDState, I8042_NUM_MAX_INSTANCES, gen)
 
 static void ioport_set_a20(int val)
 {
@@ -481,8 +481,8 @@ struct PS2MouseState {
 #define PS2_MOUSE_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(ps2_kbd,   PS2KbdState,   PS2_KBD_NUM_MAX_INSTANCES)
-CRT_DEFINE_OBJPOOL(ps2_mouse, PS2MouseState, PS2_MOUSE_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(ps2_kbd,   PS2KbdState,   PS2_KBD_NUM_MAX_INSTANCES, gen)
+CRT_DEFINE_OBJPOOL(ps2_mouse, PS2MouseState, PS2_MOUSE_NUM_MAX_INSTANCES, gen)
 
 void ps2_queue(void *opaque, int b)
 {

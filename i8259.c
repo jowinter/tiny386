@@ -57,7 +57,7 @@ struct PicState2 {
 #define I8259_NUM_MAX_INSTANCES (2u)
 #endif
 
-CRT_DEFINE_OBJPOOL(i8259, struct PicState2, I8259_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(i8259, struct PicState2, I8259_NUM_MAX_INSTANCES, gen)
 
 /* set irq level. If an edge is detected, then the IRR is set to 1 */
 static inline void pic_set_irq1(PicState *s, int irq, int level)

@@ -92,7 +92,7 @@ struct FBDevice {
 #define FBDEV_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(fbdev, struct FBDevice, FBDEV_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(fbdev, struct FBDevice, FBDEV_NUM_MAX_INSTANCES, gen)
 
 struct VGAState {
     FBDevice *fb_dev;
@@ -157,7 +157,7 @@ struct VGAState {
 #define VGA_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(vga, struct VGAState, VGA_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(vga, struct VGAState, VGA_NUM_MAX_INSTANCES, gen)
 
 static int after_eq(uint32_t a, uint32_t b)
 {

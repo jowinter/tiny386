@@ -69,7 +69,7 @@ struct AdlibState {
 #define ADLIB_NUM_MAX_INSTANCES (1u)
 #endif
 
-CRT_DEFINE_OBJPOOL(adlib, struct AdlibState, ADLIB_NUM_MAX_INSTANCES)
+CRT_DEFINE_OBJPOOL(adlib, struct AdlibState, ADLIB_NUM_MAX_INSTANCES, gen)
 
 
 static void adlib_stop_opl_timer (AdlibState *s, size_t n)
