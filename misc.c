@@ -9,7 +9,7 @@
 #include <errno.h>
 
 #include <stdio.h>
-#if !defined(_WIN32) && !defined(__wasm__)
+#if !defined(_WIN32) && !defined(__wasm__) && !defined(NANO386_PLATFORM)
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <signal.h>
@@ -18,7 +18,7 @@
 #include "driver/uart.h"
 #endif
 
-#if !defined(_WIN32) && !defined(__wasm__)
+#if !defined(_WIN32) && !defined(__wasm__) && !defined(NANO386_PLATFORM)
 static void CtrlC()
 {
 	exit( 0 );
@@ -81,6 +81,14 @@ static int IsKBHit()
 	return !!byteswaiting;
 #endif
 }
+#endif
+
+#ifdef NANO386_PLATFORM
+extern void CtrlC();
+extern void ResetKeyboardInput();
+extern void CaptureKeyboardInput();
+extern int ReadKBByte();
+extern int IsKBHit();
 #endif
 
 /* sysprog21/semu */
@@ -302,11 +310,15 @@ void u8250_update(U8250 *uart)
 
 static uint32_t cmos_get_timer(CMOS *s)
 {
+#ifndef NANO386_PLATFORM
     struct timespec ts;
 
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (uint32_t)ts.tv_sec * CMOS_FREQ +
         ((uint64_t)ts.tv_nsec * CMOS_FREQ / 1000000000);
+#else
+	return (uint32_t) (crt_clock_get_ns() / 1000000000u);
+#endif
 }
 
 static void cmos_update_timer(CMOS *s)

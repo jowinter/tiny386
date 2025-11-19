@@ -3,6 +3,34 @@
 
 #include <stdio.h>
 
+#ifndef NANO386_PLATFORM
+#include <time.h>
+#include <unistd.h>
+#endif
+
+void crt_usleep(unsigned long delay)
+{
+#ifndef NANO386_PLATFORM
+	usleep(delay);
+#else
+	// FIXME: usleep(1) is present in 4.3BSD, POSIX.1-2001 (and removed in POSIX.1-2008).
+	// Need a HAL wrapper
+#endif
+}
+
+uint64_t crt_clock_get_ns(void)
+{
+#ifndef NANO386_PLATFORM
+	struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ((uint64_t) ts.tv_sec * 1000000000ull +
+	    (uint64_t) ts.tv_nsec);
+#else
+	// FIXME: Monotonic clock source
+	return 1000ull * get_uticks();
+#endif
+}
+
 #define CRT_HEAP_DEFINE_CUSTOM(heap_name,allocfn,freefn) \
 	void* heap_name##_alloc(size_t n) \
 	{ \

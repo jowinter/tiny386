@@ -33,4 +33,7 @@ CRT_HEAP_DECLARE(big_heap)
 #define g_new(t, n) bigmalloc(sizeof(t) * (n))
 #define g_free(p) /*free(p)*/
 
+extern void crt_usleep(unsigned long delay);
+extern uint64_t crt_clock_get_ns(void);
+
 #endif /* CRT_H */

@@ -31,6 +31,11 @@ typedef void FPU;
 #define CPUI386_STATIC_TLB_SIZE (512u)
 #endif
 
+#ifdef NANO386_PLATFORM
+#include "crt.h"
+#define usleep(x) crt_usleep(x)
+#endif
+
 struct CPUI386 {
 	union {
 		uword gpr[8];
@@ -3664,7 +3669,7 @@ static bool verrw_helper(CPUI386 *cpu, int sel, int wr, int *zf)
 	cpu->cc.dst = sext ## BIT(cpu->cc.src1 - cpu->cc.src2); \
 	cpu->cc.op = CC_SUB; \
 	cpu->cc.mask = CF | PF | AF | ZF | SF | OF; \
-	if (cpu->cc.dst == 0) sa(a, lb(b)); else sreg ## BIT(0, cpu->cc.src1); 
+	if (cpu->cc.dst == 0) sa(a, lb(b)); else sreg ## BIT(0, cpu->cc.src1);
 
 #define XADD_helper(BIT, a, b, la, sa, lb, sb) \
 	u ## BIT dst = la(a); \
@@ -3726,14 +3731,18 @@ static bool verrw_helper(CPUI386 *cpu, int sel, int wr, int *zf)
 		break; \
 	}
 
-#include <time.h>
 static uint64_t get_nticks()
 {
+#ifndef NANO386_PLATFORM
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return ((uint64_t) ts.tv_sec * 1000000000ull +
 	    (uint64_t) ts.tv_nsec);
+#else
+	return crt_clock_get_ns();
+#endif
 }
+
 
 #define RDTSC() \
 	uint64_t tsc = get_nticks(); \
@@ -5171,7 +5180,7 @@ void cpui386_enable_fpu(CPUI386 *cpu)
 	cpu->fpu = fpu_new();
 }
 
-#if !defined(_WIN32) && !defined(__wasm__)
+#if !defined(_WIN32) && !defined(__wasm__) && !defined(NANO386_PLATFORM)
 void cpui386_set_verbose() // for debugging
 {
 	verbose = true;
