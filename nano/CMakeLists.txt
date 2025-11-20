@@ -69,13 +69,20 @@ TARGET_SOURCES(Nano386_Emulator
 		../misc.c
 		../fmopl.c
 		../adlib.c
-		# TODO: ../ne2000.c
 		../i8257.c
 		../sb16.c
 		../pcspk.c
 		../pci.c
 		../pc.c
 )
+
+OPTION (NANO386_PLATFORM_ENABLE_NE2000 "Platform: Enable the NE2000 network interface card" OFF)
+IF (NANO386_PLATFORM_ENABLE_NE2000)
+	TARGET_SOURCES(Nano386_Emulator PRIVATE ../ne2000.c)
+	TARGET_COMPILE_DEFINITIONS(Nano386_Emulator PUBLIC NANO386_PLATFORM_ENABLE_NE2000=1)
+ELSE ()
+	TARGET_COMPILE_DEFINITIONS(Nano386_Emulator PUBLIC NANO386_PLATFORM_ENABLE_NE2000=0)
+ENDIF ()
 
 TARGET_INCLUDE_DIRECTORIES(Nano386_Emulator
 	PUBLIC

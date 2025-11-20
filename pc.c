@@ -89,6 +89,7 @@ static u8 pc_io_read(void *o, int addr)
 	case 0xcfc: case 0xcfd: case 0xcfe: case 0xcff:
 		val = i440fx_read_data(pc->i440fx, addr - 0xcfc, 0);
 		return val;
+#if !defined(NANO386_PLATFORM_ENABLE_NE2000) || (NANO386_PLATFORM_ENABLE_NE2000 != 0)
 	case 0x300: case 0x301: case 0x302: case 0x303:
 	case 0x304: case 0x305: case 0x306: case 0x307:
 	case 0x308: case 0x309: case 0x30a: case 0x30b:
@@ -101,6 +102,7 @@ static u8 pc_io_read(void *o, int addr)
 	case 0x31f:
 		val = ne2000_reset_ioport_read(pc->ne2000, addr);
 		return val;
+#endif
 	case 0x00: case 0x01: case 0x02: case 0x03:
 	case 0x04: case 0x05: case 0x06: case 0x07:
 		val = i8257_read_chan(pc->isa_dma, addr - 0x00, 1);
@@ -166,9 +168,11 @@ static u16 pc_io_read16(void *o, int addr)
 	case 0xcfc: case 0xcfe:
 		val = i440fx_read_data(pc->i440fx, addr - 0xcfc, 1);
 		return val;
+#if !defined(NANO386_PLATFORM_ENABLE_NE2000) || (NANO386_PLATFORM_ENABLE_NE2000 != 0)
 	case 0x310:
 		val = ne2000_asic_ioport_read(pc->ne2000, addr);
 		return val;
+#endif
 	case 0x220:
 		return adlib_read(pc->adlib, addr);
 	default:
@@ -309,6 +313,7 @@ static void pc_io_write(void *o, int addr, u8 val)
 	case 0xcfc: case 0xcfd: case 0xcfe: case 0xcff:
 		i440fx_write_data(pc->i440fx, addr - 0xcfc, val, 0);
 		return;
+#if !defined(NANO386_PLATFORM_ENABLE_NE2000) || (NANO386_PLATFORM_ENABLE_NE2000 != 0)
 	case 0x300: case 0x301: case 0x302: case 0x303:
 	case 0x304: case 0x305: case 0x306: case 0x307:
 	case 0x308: case 0x309: case 0x30a: case 0x30b:
@@ -321,6 +326,7 @@ static void pc_io_write(void *o, int addr, u8 val)
 	case 0x31f:
 		ne2000_reset_ioport_write(pc->ne2000, addr, val);
 		return;
+#endif
 	case 0x00: case 0x01: case 0x02: case 0x03:
 	case 0x04: case 0x05: case 0x06: case 0x07:
 		i8257_write_chan(pc->isa_dma, addr - 0x00, val, 1);
@@ -394,9 +400,11 @@ static void pc_io_write16(void *o, int addr, u16 val)
 	case 0xcfc: case 0xcfe:
 		i440fx_write_data(pc->i440fx, addr - 0xcfc, val, 1);
 		return;
+#if !defined(NANO386_PLATFORM_ENABLE_NE2000) || (NANO386_PLATFORM_ENABLE_NE2000 != 0)
 	case 0x310:
 		ne2000_asic_ioport_write(pc->ne2000, addr, val);
 		return;
+#endif
 	default:
 		fprintf(stderr, "outw 0x%x => 0x%x\n", val, addr);
 		return;
@@ -470,7 +478,9 @@ void pc_step(PC *pc)
 	if (pc->enable_serial)
 		u8250_update(pc->serial);
 	kbd_step(pc->i8042);
+#if !defined(NANO386_PLATFORM_ENABLE_NE2000) || (NANO386_PLATFORM_ENABLE_NE2000 != 0)
 	ne2000_step(pc->ne2000);
+#endif
 	i8257_dma_run(pc->isa_dma);
 	i8257_dma_run(pc->isa_hdma);
 #ifndef BUILD_ESP32
@@ -737,7 +747,11 @@ PC *pc_new(SimpleFBDrawFunc *redraw, void (*poll)(void *), void *redraw_data,
 			       1, 12, pc->pic, set_irq,
 			       pc, pc_reset_request);
 	pc->adlib = adlib_new();
+#if !defined(NANO386_PLATFORM_ENABLE_NE2000) || (NANO386_PLATFORM_ENABLE_NE2000 != 0)
 	pc->ne2000 = isa_ne2000_init(0x300, 9, pc->pic, set_irq);
+#else
+	pc->ne2000 = NULL;
+#endif
 	pc->isa_dma = i8257_new(pc->phys_mem, pc->phys_mem_size,
 				0x00, 0x80, 0x480, 0);
 	pc->isa_hdma = i8257_new(pc->phys_mem, pc->phys_mem_size,
