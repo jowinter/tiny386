@@ -33,6 +33,12 @@ TARGET_LINK_LIBRARIES(Nano386_Platform  INTERFACE Nano386_Toolchain -lm)
 
 TARGET_COMPILE_DEFINITIONS(Nano386_Platform INTERFACE NANO386_PLATFORM=1)
 
+OPTION (NANO386_GNU_SOURCE "Build with -D_GNU_SOURCE=1" ON)
+IF (NANO386_GNU_SOURCE)
+	# strdup in <string.h> and friends ...
+	TARGET_COMPILE_DEFINITIONS(Nano386_Platform INTERFACE NANO386_GNU_SOURCE=1 _GNU_SOURCE=1)
+ENDIF ()
+
 OPTION (NANO386_SEMIHOSTING "Enable ARM semihosting" ON)
 IF (NANO386_SEMIHOSTING)
 	MESSAGE ("-- Enabling semihosting support (via rdimon.specs)")
@@ -68,6 +74,7 @@ TARGET_SOURCES(Nano386_Emulator
 		../sb16.c
 		../pcspk.c
 		../pci.c
+		../pc.c
 )
 
 TARGET_INCLUDE_DIRECTORIES(Nano386_Emulator

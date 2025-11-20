@@ -30,15 +30,6 @@
 #include "ide.h"
 #include "pc.h"
 
-#ifdef NANO386_PLATFORM
-static off_t ftello(FILE *f)
-{
-    // FIXME: ftello() is a Glibc 2.1. POSIX.1-2001, SUSv2 API
-    // (identical to ftell except fot type of off_t, sic!)
-    return (off_t) ftell(f);
-}
-#endif
-
 //#define DEBUG_IDE
 //#define DEBUG_IDE_ATAPI
 
