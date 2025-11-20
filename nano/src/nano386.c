@@ -1,4 +1,9 @@
-// "headless" tiny386
+//
+// Minimal boot instructions (currently):
+//   qemu-system-arm -M versatilepb -semihosting -kernel ./build.arm/Nano386 -append "boot.ini"
+//
+
+// // "headless" tiny386
 // for SDL port, see `sdl/main.c`
 #include <stdio.h>
 #include <string.h>
